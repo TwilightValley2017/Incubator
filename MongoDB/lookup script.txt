@@ -1,0 +1,367 @@
+db.TreeCollection.aggregate([
+    {
+        $match: { "_id" : ObjectId("5c513a5685d25932e0785216") }
+    },
+    
+    // lookup the MEP level
+    {
+        $unwind: "$ChildData"
+    },
+    {
+        $match: { "ChildData.ID": "s86" }
+    },
+    {
+        $lookup: {
+            from: "TreeElementCollection",
+            let: { tree_ID: "$ChildData.ID" },
+            pipeline: [
+                { $match: { $expr: { $and: [ {$eq: [ "$ID", "$$tree_ID" ]}, { $eq: ["$Type", "DeviceType"]}] }}},
+                { $project: { _id: 1, Type: 1, Name: 1, ModelID: 1, IsUpdated: 1 } }
+            ],
+            as: "ChildData.elementInfo"
+        }
+    },
+    {
+        $addFields:{"ChildData.elementInfoTemp": { "$arrayElemAt": [ "$ChildData.elementInfo", 0 ] }}
+    },
+    {
+        $addFields:{
+            "ChildData._id.oid": { "$toString": "$ChildData.elementInfoTemp._id"},
+            "ChildData.Name": "$ChildData.elementInfoTemp.Name",
+            "ChildData.Type": "$ChildData.elementInfoTemp.Type",
+            "ChildData.ModelID": "$ChildData.elementInfoTemp.ModelID",
+            "ChildData.IsUpdated": "$ChildData.elementInfoTemp.IsUpdated"
+        }
+    },
+    {
+        $project: { "ChildData.elementInfo": 0, "ChildData.elementInfoTemp": 0 }
+    },
+    
+    // lookup the system category level
+    {
+        $unwind: "$ChildData.ChildData"
+    },
+    {
+        $lookup: {
+            from: "TreeElementCollection",
+            let: { tree_ID: "$ChildData.ChildData.ID" },
+            pipeline: [
+                { $match: { $expr: { $and: [ {$eq: [ "$ID", "$$tree_ID" ]}, { $eq: ["$Type", "DeviceType"]}] }}},
+                { $project: { _id: 1, Type: 1, Name: 1, ModelID: 1, IsUpdated: 1 } }
+            ],
+            as: "ChildData.ChildData.elementInfo"
+        }
+    },
+    {
+        $addFields:{"ChildData.ChildData.elementInfoTemp": { "$arrayElemAt": [ "$ChildData.ChildData.elementInfo", 0 ] }}
+    },
+    {
+        $addFields:{
+            "ChildData.ChildData._id.oid": { "$toString": "$ChildData.ChildData.elementInfoTemp._id"},
+            "ChildData.ChildData.Name": "$ChildData.ChildData.elementInfoTemp.Name",
+            "ChildData.ChildData.Type": "$ChildData.ChildData.elementInfoTemp.Type",
+            "ChildData.ChildData.ModelID": "$ChildData.ChildData.elementInfoTemp.ModelID",
+            "ChildData.ChildData.IsUpdated": "$ChildData.ChildData.elementInfoTemp.IsUpdated"
+        }
+    },
+    {
+        $project: { "ChildData.ChildData.elementInfo": 0, "ChildData.ChildData.elementInfoTemp": 0 }
+    },
+    
+    // look the system loopback level
+    {
+        $unwind: "$ChildData.ChildData.ChildData"
+    },
+    {
+        $lookup: {
+            from: "TreeElementCollection",
+            let: { tree_ID: "$ChildData.ChildData.ChildData.ID" },
+            pipeline: [
+                { $match: { $expr: { $and: [ {$eq: [ "$ID", "$$tree_ID" ]}, { $eq: ["$Type", "DeviceType"]}] }}},
+                { $project: { _id: 1, Type: 1, Name: 1, ModelID: 1, IsUpdated: 1 } }
+            ],
+            as: "ChildData.ChildData.ChildData.elementInfo"
+        }
+    },
+    {
+        $addFields:{"ChildData.ChildData.ChildData.elementInfoTemp": { "$arrayElemAt": [ "$ChildData.ChildData.ChildData.elementInfo", 0 ] }}
+    },
+    {
+        $addFields:{
+            "ChildData.ChildData.ChildData._id.oid": { "$toString": "$ChildData.ChildData.ChildData.elementInfoTemp._id"},
+            "ChildData.ChildData.ChildData.Name": "$ChildData.ChildData.ChildData.elementInfoTemp.Name",
+            "ChildData.ChildData.ChildData.Type": "$ChildData.ChildData.ChildData.elementInfoTemp.Type",
+            "ChildData.ChildData.ChildData.ModelID": "$ChildData.ChildData.ChildData.elementInfoTemp.ModelID",
+            "ChildData.ChildData.ChildData.IsUpdated": "$ChildData.ChildData.ChildData.elementInfoTemp.IsUpdated"
+        }
+    },
+    {
+        $project: { "ChildData.ChildData.ChildData.elementInfo": 0, "ChildData.ChildData.ChildData.elementInfoTemp": 0 }
+    },
+    
+    
+    // lookup the device level, or component
+    {
+        $unwind: "$ChildData.ChildData.ChildData.ChildData"
+    },
+    {
+        $lookup: {
+            from: "TreeElementCollection",
+            let: { tree_ID: "$ChildData.ChildData.ChildData.ChildData.ID" },
+            pipeline: [
+            { $match: { $expr: { $and: [ {$eq: [ "$ID", "$$tree_ID" ]}, { $eq: ["$Type", "Device"]}] }}},
+                { $project: { _id: 1, Type: 1, Name: 1, ModelID: 1, IsUpdated: 1 } }
+            ],
+            as: "ChildData.ChildData.ChildData.ChildData.elementInfo"
+        }
+    },
+    {
+        $addFields:{"ChildData.ChildData.ChildData.ChildData.elementInfoTemp": { "$arrayElemAt": [ "$ChildData.ChildData.ChildData.ChildData.elementInfo", 0 ] }}
+    },
+    {
+        $addFields:{
+            "ChildData.ChildData.ChildData.ChildData._id.oid": { "$toString": "$ChildData.ChildData.ChildData.ChildData.elementInfoTemp._id"},
+            "ChildData.ChildData.ChildData.ChildData.Name": "$ChildData.ChildData.ChildData.ChildData.elementInfoTemp.Name",
+            "ChildData.ChildData.ChildData.ChildData.Type": "$ChildData.ChildData.ChildData.ChildData.elementInfoTemp.Type",
+            "ChildData.ChildData.ChildData.ChildData.ModelID": "$ChildData.ChildData.ChildData.ChildData.elementInfoTemp.ModelID",
+            "ChildData.ChildData.ChildData.ChildData.IsUpdated": "$ChildData.ChildData.ChildData.ChildData.elementInfoTemp.IsUpdated"
+        }
+    },
+    {
+        $project: { "ChildData.ChildData.ChildData.ChildData.elementInfo": 0, "ChildData.ChildData.ChildData.ChildData.elementInfoTemp": 0 }
+    },
+    
+    // group the device level
+    {
+        $group: {
+            _id: {
+                _group_id: "$$ROOT.ChildData.ChildData.ChildData.ID",
+                _id: { "$toString": "$$ROOT._id" },
+                ID: "$$ROOT.ID",
+                ParentID: "$$ROOT.ParentID",
+                Name: "$$ROOT.Name",
+                ModelID: "$$ROOT.ModelID",
+                ModelVersion: "$$ROOT.ModelVersion",
+                Type: "$$ROOT.Type",
+                ChildData: {
+                    _id: "$$ROOT.ChildData._id",
+                    ID: "$$ROOT.ChildData.ID",
+                    ParentID: "$$ROOT.ChildData.ParentID",
+                    Name: "$$ROOT.ChildData.Name",
+                    ModelID: "$$ROOT.ChildData.ModelID",
+                    ModelVersion: "$$ROOT.ChildData.ModelVersion",
+                    Type: "$$ROOT.ChildData.Type",
+                    ChildData: {
+                        _id: "$$ROOT.ChildData.ChildData._id",
+                        ID: "$$ROOT.ChildData.ChildData.ID",
+                        ParentID: "$$ROOT.ChildData.ChildData.ParentID",
+                        Name: "$$ROOT.ChildData.ChildData.Name",
+                        ModelID: "$$ROOT.ChildData.ChildData.ModelID",
+                        ModelVersion: "$$ROOT.ChildData.ChildData.ModelVersion",
+                        Type: "$$ROOT.ChildData.ChildData.Type",
+                        ChildData: {
+                            _id: "$$ROOT.ChildData.ChildData.ChildData._id",
+                            ID: "$$ROOT.ChildData.ChildData.ChildData.ID",
+                            ParentID: "$$ROOT.ChildData.ChildData.ChildData.ParentID",
+                            Name: "$$ROOT.ChildData.ChildData.ChildData.Name",
+                            ModelID: "$$ROOT.ChildData.ChildData.ChildData.ModelID",
+                            ModelVersion: "$$ROOT.ChildData.ChildData.ChildData.ModelVersion",
+                            Type: "$$ROOT.ChildData.ChildData.ChildData.Type",
+                        
+                        }   
+                    }
+                }
+            },
+            Children: { 
+                $push: "$$ROOT.ChildData.ChildData.ChildData.ChildData" 
+            }
+        }
+    },
+    {
+        $project: {
+            _id: "$_id._id",
+            ID: "$_id.ID",
+            ParentID: "$_id.ParentID",
+            Type: "$_id.Type",
+            Name: "$_id.Name",
+            ModelID: "$_id.ModelID",
+            ModelVersion: "$_id.ModelVersion",
+            ChildData: {
+                _id: "$_id.ChildData._id",
+                ID: "$_id.ChildData.ID",
+                ParentID: "$_id.ChildData.ParentID",
+                Type: "$_id.ChildData.Type",
+                Name: "$_id.ChildData.Name",
+                ModelID: "$_id.ChildData.ModelID",
+                ModelVersion: "$_id.ChildData.ModelVersion",
+                ChildData: {
+                    _id: "$_id.ChildData.ChildData._id",
+                    ID: "$_id.ChildData.ChildData.ID",
+                    ParentID: "$_id.ChildData.ChildData.ParentID",
+                    Type: "$_id.ChildData.ChildData.Type",
+                    Name: "$_id.ChildData.ChildData.Name",
+                    ModelID: "$_id.ChildData.ChildData.ModelID",
+                    ModelVersion: "$_id.ChildData.ChildData.ModelVersion",
+                    ChildData: {
+                        _id: "$_id.ChildData.ChildData.ChildData._id",
+                        ID: "$_id.ChildData.ChildData.ChildData.ID",
+                        ParentID: "$_id.ChildData.ChildData.ChildData.ParentID",
+                        Type: "$_id.ChildData.ChildData.ChildData.Type",
+                        Name: "$_id.ChildData.ChildData.ChildData.Name",
+                        ModelID: "$_id.ChildData.ChildData.ChildData.ModelID",
+                        ModelVersion: "$_id.ChildData.ChildData.ChildData.ModelVersion",
+                        ChildData: "$Children",
+                    }
+                }
+            }
+        }
+    },
+    
+    // group the system loop level
+    {
+        $group: {
+            _id: {
+                _group_id: "$$ROOT.ChildData.ChildData.ID",
+                _id: { "$toString": "$$ROOT._id" },
+                ID: "$$ROOT.ID",
+                ParentID: "$$ROOT.ParentID",
+                Name: "$$ROOT.Name",
+                ModelID: "$$ROOT.ModelID",
+                ModelVersion: "$$ROOT.ModelVersion",
+                Type: "$$ROOT.Type",
+                ChildData: {
+                    _id: "$$ROOT.ChildData._id",
+                    ID: "$$ROOT.ChildData.ID",
+                    ParentID: "$$ROOT.ChildData.ParentID",
+                    Name: "$$ROOT.ChildData.Name",
+                    ModelID: "$$ROOT.ChildData.ModelID",
+                    ModelVersion: "$$ROOT.ChildData.ModelVersion",
+                    Type: "$$ROOT.ChildData.Type",
+                    ChildData: {
+                        _id: "$$ROOT.ChildData.ChildData._id",
+                        ID: "$$ROOT.ChildData.ChildData.ID",
+                        ParentID: "$$ROOT.ChildData.ChildData.ParentID",
+                        Name: "$$ROOT.ChildData.ChildData.Name",
+                        ModelID: "$$ROOT.ChildData.ChildData.ModelID",
+                        ModelVersion: "$$ROOT.ChildData.ChildData.ModelVersion",
+                        Type: "$$ROOT.ChildData.ChildData.Type",  
+                    }
+                }
+            },
+            Children: { 
+                $push: "$$ROOT.ChildData.ChildData.ChildData" 
+            }
+        }
+    },
+    {
+        $project: {
+            _id: "$_id._id",
+            ID: "$_id.ID",
+            ParentID: "$_id.ParentID",
+            Type: "$_id.Type",
+            Name: "$_id.Name",
+            ModelID: "$_id.ModelID",
+            ModelVersion: "$_id.ModelVersion",
+            ChildData: {
+                _id: "$_id.ChildData._id",
+                ID: "$_id.ChildData.ID",
+                ParentID: "$_id.ChildData.ParentID",
+                Type: "$_id.ChildData.Type",
+                Name: "$_id.ChildData.Name",
+                ModelID: "$_id.ChildData.ModelID",
+                ModelVersion: "$_id.ChildData.ModelVersion",
+                ChildData: {
+                    _id: "$_id.ChildData.ChildData._id",
+                    ID: "$_id.ChildData.ChildData.ID",
+                    ParentID: "$_id.ChildData.ChildData.ParentID",
+                    Type: "$_id.ChildData.ChildData.Type",
+                    Name: "$_id.ChildData.ChildData.Name",
+                    ModelID: "$_id.ChildData.ChildData.ModelID",
+                    ModelVersion: "$_id.ChildData.ChildData.ModelVersion",
+                    ChildData: "$Children",
+                }
+            }
+        }
+    },
+    
+    // group the system category level
+    {
+        $group: {
+            _id: {
+                _group_id: "$$ROOT.ChildData.ID",
+                _id: { "$toString": "$$ROOT._id" },
+                ID: "$$ROOT.ID",
+                ParentID: "$$ROOT.ParentID",
+                Name: "$$ROOT.Name",
+                ModelID: "$$ROOT.ModelID",
+                ModelVersion: "$$ROOT.ModelVersion",
+                Type: "$$ROOT.Type",
+                ChildData: {
+                    _id: "$$ROOT.ChildData._id",
+                    ID: "$$ROOT.ChildData.ID",
+                    ParentID: "$$ROOT.ChildData.ParentID",
+                    Name: "$$ROOT.ChildData.Name",
+                    ModelID: "$$ROOT.ChildData.ModelID",
+                    ModelVersion: "$$ROOT.ChildData.ModelVersion",
+                    Type: "$$ROOT.ChildData.Type",
+                }
+            },
+            Children: { 
+                $push: "$$ROOT.ChildData.ChildData" 
+            }
+        }
+    },
+    {
+        $project: {
+            _id: "$_id._id",
+            ID: "$_id.ID",
+            ParentID: "$_id.ParentID",
+            Type: "$_id.Type",
+            Name: "$_id.Name",
+            ModelID: "$_id.ModelID",
+            ModelVersion: "$_id.ModelVersion",
+            ChildData: {
+                _id: "$_id.ChildData._id",
+                ID: "$_id.ChildData.ID",
+                ParentID: "$_id.ChildData.ParentID",
+                Type: "$_id.ChildData.Type",
+                Name: "$_id.ChildData.Name",
+                ModelID: "$_id.ChildData.ModelID",
+                ModelVersion: "$_id.ChildData.ModelVersion",
+                ChildData: "$Children",
+            }
+        }
+    },
+    
+    // group the MEP level
+    {
+        $group: {
+            _id: {
+                _group_id: "$$ROOT.ID",
+                _id: { "$toString": "$$ROOT._id" },
+                ID: "$$ROOT.ID",
+                ParentID: "$$ROOT.ParentID",
+                Name: "$$ROOT.Name",
+                ModelID: "$$ROOT.ModelID",
+                ModelVersion: "$$ROOT.ModelVersion",
+                Type: "$$ROOT.Type",
+            },
+            Children: { 
+                $push: "$$ROOT.ChildData" 
+            }
+        }
+    },
+    {
+        $project: {
+            _id: "$_id._id",
+            ID: "$_id.ID",
+            ParentID: "$_id.ParentID",
+            Type: "$_id.Type",
+            Name: "$_id.Name",
+            ModelID: "$_id.ModelID",
+            ModelVersion: "$_id.ModelVersion",
+            ChildData: "$Children",
+        }
+    },
+
+])  
