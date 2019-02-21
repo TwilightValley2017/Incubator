@@ -1,0 +1,55 @@
+﻿
+拷贝数据库文件至指定文件夹，如
+D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5
+
+--------------------------------------------------------------------------------
+
+启动MongoDB服务
+
+打开CMD工具，切换目录至bin文件夹下，如
+cd "Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\bin"
+
+创建data文件夹，与bin同级
+
+启动服务，输入
+mongod --dbpath "D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\data"
+
+启动成功
+
+--------------------------------------------------------------------------------
+
+创建MongoDB为Windows服务
+
+以管理员身份打开CMD工具，切换目录至bin文件夹下，如
+cd "Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\bin"
+
+创建log文件夹，与bin同级
+
+创建服务，输入
+mongod --install --serviceName MongoDB --serviceDisplayName MongoDB --logpath "D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\log\MongoDB.log" --dbpath "D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\data" --directoryperdb
+
+创建完毕
+
+--------------------------------------------------------------------------------
+
+运行服务
+net start MongoDB
+
+停止服务
+net stop MongoDB
+
+删除服务
+sc delete MongoDB
+
+
+--------------------------------------------------------------------------------
+
+删除MongoDB服务
+
+mongod --remove --serviceName MongoDB --serviceDisplayName MongoDB --logpath "D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\log\MongoDB.log" --dbpath "D:\Program Files\mongodb-win32-x86_64-2008plus-ssl-4.0.5\data" --directoryperdb
+
+--------------------------------------------------------------------------------
+
+services.msc 打开service management console
+
+

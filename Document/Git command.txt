@@ -1,0 +1,8 @@
+
+git config --system --unset credential.helper
+之后再进行git操作时，弹出用户名密码窗口，输入即可
+
+
+git config --global credential.helper store
+保存用户名、密码
+
