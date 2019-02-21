@@ -1,0 +1,4 @@
+# git ignore file
+
+# ignore .idea files
+.idea/
