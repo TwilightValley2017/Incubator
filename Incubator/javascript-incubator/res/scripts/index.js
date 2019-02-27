@@ -1,7 +1,19 @@
 
-function showPics (element) {
-    let src = element.getAttribute("href");
-    let placeholder = document.getElementById("placeholder")
-    placeholder.setAttribute("src", src);
-    return false;
+window.onload = prepareElements;
+function prepareElements() {
+    if (!document.getElementsByTagName) return false;
+
+    let elements = document.getElementsByTagName("a");
+    for (let i=0; i<elements.length; i++) {
+        if (elements[i].getAttribute("class") == "popup") {
+            elements[i].onclick = function() {
+                popUp(this.getAttribute("href"));
+                return false;
+            }
+        }
+    }
+}
+
+function popUp(href) {
+    window.open(href, "popup");
 }
