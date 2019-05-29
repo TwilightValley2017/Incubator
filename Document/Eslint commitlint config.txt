@@ -1,0 +1,51 @@
+
+
+// 全局安装后，可使用eslint命令
+npm i eslint -g
+
+// 添加配置文件 .eslintrc.js
+eslint --init
+
+
+npm i husky
+npm i lint-staged
+
+// package.json 添加配置项
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
+  
+npm i @commitlint/cli
+npm i @commitlint/config-conventional
+
+// 添加commitlint配置文件，commitlint.config.js
+
+module.exports = {extends: ['@commitlint/config-conventional']}
+
+// commitlint.config.js
+module.exports = {
+    extends: ['@commitlint/config-conventional'],
+    rules: {
+        'type-enum': [2, 'always', [
+            "feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert", "merge"
+        ]],
+        'subject-full-stop': [0, 'never'],
+        'subject-case': [0, 'never']
+    }};
+
+// 修改package.json 配置项
+"husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  
